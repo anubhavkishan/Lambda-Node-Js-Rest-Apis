@@ -1,0 +1,84 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'user-api
+
+  Sample SAM Template for user-api
+
+  '
+Globals:
+  Function:
+    Timeout: 3
+Resources:
+  HelloWorldFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: HelloWorldFunction
+      Handler: app.lambdaHandler
+      Runtime: nodejs14.x
+      Architectures:
+      - x86_64
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /hello
+            Method: get
+    Metadata:
+      SamResourceId: HelloWorldFunction
+  UserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: UserFunction
+      Handler: lambda.handler
+      Runtime: nodejs14.x
+      Environment:
+        Variables:
+          DB_HOST: database-1.ctujumkssauj.us-east-1.rds.amazonaws.com
+          DB_USER: ksktdev
+          DB_PASS: ksktdev1
+          DB_NAME: dummy_sam
+      Events:
+        GetUserAPI:
+          Type: Api
+          Properties:
+            Path: /api/users/allUsers
+            Method: get
+        PostUserAPI:
+          Type: Api
+          Properties:
+            Path: /api/users/addUser
+            Method: post
+        GetSingleUserAPI:
+          Type: Api
+          Properties:
+            Path: /api/users/{proxy+}
+            Method: get
+        UpdateSingleUserAPI:
+          Type: Api
+          Properties:
+            Path: /api/users/{proxy+}
+            Method: put
+        DeleteSingleUserAPI:
+          Type: Api
+          Properties:
+            Path: /api/users/{proxy+}
+            Method: delete
+    Metadata:
+      SamResourceId: UserFunction
+Outputs:
+  HelloWorldApi:
+    Description: API Gateway endpoint URL for Prod stage for Hello World function
+    Value:
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/
+  HelloWorldFunction:
+    Description: Hello World Lambda Function ARN
+    Value:
+      Fn::GetAtt:
+      - HelloWorldFunction
+      - Arn
+  HelloWorldFunctionIamRole:
+    Description: Implicit IAM Role created for Hello World function
+    Value:
+      Fn::GetAtt:
+      - HelloWorldFunctionRole
+      - Arn
